@@ -53,5 +53,5 @@ void DicCreator()
 	}
 	DIC.close();
 }
-//Falta um WordChecker para verificar se a posição é 'legal' e falta o template para saber como implementar a palavra
+//Falta um WordChecker para verificar se a posiÃ§Ã£o Ã© 'legal' e falta o template para saber como implementar a palavra
 //na matriz
