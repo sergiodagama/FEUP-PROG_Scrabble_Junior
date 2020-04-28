@@ -1,0 +1,25 @@
+Board:
+1) Perguntar tamanho (n) (entre 15 e 20) (20 sendo o limite definido)
+2) Criar n arrays com n lugares (tudo a zeros)
+3) posição introduzida pelo utilizador tem de ser traduzida (A=0, B=1, C=2 ...)
+4) Contador de palavras
+
+Palavras:
+1. Escolher palavra
+2. verificar se a palavra existe
+	cortar a palavar
+3. verificar espaço (if loop)
+	IF Horizontal
+	IF Vertical
+4. verificar interseção e caso haja alguma , verificar se possivel 
+
+Jogardores:
+-Dar letras Random (mas que todas as necessarias para acabar o jogo sejam 
+distribuidas, logo um contador das letras será necessario)
+-Verificar se o jogo pode posicionar a letra no sitio 
+- "The number of players and the name of the board file must be asked to the user at the beginning of the
+program."
+- "The program must prevent the playing of invalid letters (letters that are not in the player's hand) or at invalid
+positions (the played letter does not match with the letter in the chosen position).
+- The way to indicate that a letter has been played on the board is to change the color of the letter on the
+screen."
