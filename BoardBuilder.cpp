@@ -53,42 +53,53 @@ void intersection(vector<char> WordSplit, vector<vector<char>> board, ofstream& 
 {
 	for (int i = 0; i < wordlength; i++)
 	{
-
 		if (dir == "H")
 		{
-			if (board[x][y+i] != NULL)
+			char h = board[x][y + i];
+			cout << h << endl;
+			if (h != 0)
 			{
-				if (board[x][y + i] != WordSplit[i])
+				if (h != WordSplit[i])
 				{
 					cout << "Word invalid because of an intersection at " << pos;
 					valid++;
 					break;
 				}
+				else
+				{
+					continue;
+				}
 			}
 		}
 
-		if (dir == "V")
+		else if (dir == "V")
 		{
-			if (board[x + i][y] != NULL)
+			char v = board[x + i][y];
+			if (v != NULL)
 			{
-				if (board[x + i][y] != WordSplit[i])
+				if (v != WordSplit[i])
 				{
 					cout << "Word invalid because of an intersection at " << pos;
 					valid++;
 					break;
+				}
+				else
+				{
+					continue;
 				}
 			}
 		}
 	}
 }
 
-void InsertInBoard(vector<vector<char>> board, vector<char> WordSplit, ofstream& myfile, int x, int y) //Insert word in board after it has been verified
+void InsertInBoard(vector<vector<char>> &board, vector<char> WordSplit, ofstream& myfile, int x, int y) //Insert word in board after it has been verified
 {
 	for (int i = 0; i < wordlength; i++)
 	{
 		if (dir == "H")
 		{
-			board[x][y + i] = WordSplit[i];
+			char r = board[x][y + i];
+			r = WordSplit[i];
 		}
 
 		else
@@ -150,9 +161,9 @@ void ManualBoard(vector<vector<char>> board, ofstream& myfile, vector<string> wo
 
 		cout << "\nPosition of First letter: (in letters, ex: Aa) \n"; cin >> pos;
 
-		int x = alpha.find(pos[0]);
+		int x = alpha.find(pos[0]) + 1;
 
-		int y = ALPHA.find(pos[1]);
+		int y = ALPHA.find(pos[1]) + 1;
 
 		sizeverifier(x, y);
 
@@ -274,6 +285,7 @@ int main() //boardbuilder
 	vector<string> words;
 	string l;
 	string personalized;
+	char r;
 
 	ifstream language;
 	language.open("lang.txt");
@@ -326,5 +338,4 @@ int main() //boardbuilder
 	PrintBoard(nameFile);
 
 	return 0;
-
 }
