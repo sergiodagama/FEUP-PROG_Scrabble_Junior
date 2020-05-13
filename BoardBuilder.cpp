@@ -23,6 +23,7 @@ string dir, h = "H", v = "V";
 string Word, pos;
 string ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 string alpha = "abcdefghijklmnopqrstuvwxyz";
+vector<vector<char>> board(sizeofboard, vector<char>(sizeofboard));
 
 
 void WordVerifier(vector<string> words)
@@ -49,7 +50,7 @@ void sizeverifier(int x, int y) //Verifier for words vertically (s = size of boa
 
 }
 
-void intersection(vector<char> WordSplit, vector<vector<char>> board, ofstream& myfile, int x, int y) //verify if any intersection occur, and if it occurs, verify if possible
+void intersection(vector<char> WordSplit, ofstream& myfile, int x, int y) //verify if any intersection occur, and if it occurs, verify if possible
 {
 	for (int i = 0; i < wordlength; i++)
 	{
@@ -61,7 +62,7 @@ void intersection(vector<char> WordSplit, vector<vector<char>> board, ofstream& 
 			{
 				if (h != WordSplit[i])
 				{
-					cout << "Word invalid because of an intersection at " << pos;
+					cout << "Word invalid because of an intersection at " << pos << endl;
 					valid++;
 					break;
 				}
@@ -75,11 +76,10 @@ void intersection(vector<char> WordSplit, vector<vector<char>> board, ofstream& 
 		else if (dir == "V")
 		{
 			char v = board[x + i][y];
-			if (v != NULL)
+			if (v != 0)
 			{
 				if (v != WordSplit[i])
 				{
-					cout << "Word invalid because of an intersection at " << pos;
 					valid++;
 					break;
 				}
@@ -92,26 +92,27 @@ void intersection(vector<char> WordSplit, vector<vector<char>> board, ofstream& 
 	}
 }
 
-void InsertInBoard(vector<vector<char>> &board, vector<char> WordSplit, ofstream& myfile, int x, int y) //Insert word in board after it has been verified
+void InsertInBoard(vector<char> WordSplit, ofstream& myfile, int x, int y) //Insert word in board after it has been verified
 {
 	for (int i = 0; i < wordlength; i++)
 	{
 		if (dir == "H")
 		{
-			char r = board[x][y + i];
-			r = WordSplit[i];
+			char r = WordSplit[i];
+			board[x][y + i] = r;
 		}
 
 		else
 		{
-			board[x + i][y] = WordSplit[i];
+			char r = WordSplit[i];
+			board[x+i][y] = r;
 		}
 	}
 
 	myfile << pos << " " << dir << " " << Word << "\n";
 }
 
-void DictionaryCreator(string lang, vector<string>& words) // Creat set with all the words
+void DictionaryCreator(string lang, vector<string> &words) // Creat set with all the words
 {
 	//ifstream DIC;
 	//DIC.open("it.txt");
@@ -129,7 +130,7 @@ void DictionaryCreator(string lang, vector<string>& words) // Creat set with all
 
 }
 
-void ManualBoard(vector<vector<char>> board, ofstream& myfile, vector<string> words) //Manual board creator
+void ManualBoard(ofstream& myfile, vector<string> words) //Manual board creator
 {
 	int x, y;
 	string end = "yes";
@@ -143,6 +144,13 @@ void ManualBoard(vector<vector<char>> board, ofstream& myfile, vector<string> wo
 
 		wordlength = Word.size();
 		vector<char> WordSplit(Word.begin(), Word.end());
+		for (int i = 0; i < wordlength; i++)
+		{
+			cout << WordSplit[i] << " ";
+		}
+		
+		cout << endl;
+
 		WordVerifier(words);
 
 		while (dir != "H" || dir != "V")
@@ -173,7 +181,7 @@ void ManualBoard(vector<vector<char>> board, ofstream& myfile, vector<string> wo
 		}
 
 
-		intersection(WordSplit, board, myfile, x, y);
+		intersection(WordSplit, myfile, x, y);
 
 		if (valid != 0)
 		{
@@ -181,7 +189,7 @@ void ManualBoard(vector<vector<char>> board, ofstream& myfile, vector<string> wo
 		}
 		else
 		{
-			InsertInBoard(board, WordSplit, myfile, x, y);
+			InsertInBoard(WordSplit, myfile, x, y);
 		}
 
 		wordcount++;
@@ -192,17 +200,12 @@ void ManualBoard(vector<vector<char>> board, ofstream& myfile, vector<string> wo
 
 }
 
-void AutomaticBoard(vector<vector<char>> board, ofstream& myfile, string, vector<string> words)
+void AutomaticBoard(ofstream& myfile, string, vector<string> words)
 {
 	int x, y;
 	int wordcount = 0;
-	int count = 0;
 	string RandDir = "HV";
 	string RandX, RandY;
-
-	count = words.size();
-
-	cout << "\n" << count << endl;
 
 	cout << "How many words do you want in the board? (around 30)\n"; cin >> wordcount;
 
@@ -248,15 +251,15 @@ void AutomaticBoard(vector<vector<char>> board, ofstream& myfile, string, vector
 		pos.append(RandX);
 		pos.append(RandY);
 
-		intersection(WordSplit, board, myfile, x, y);
+		intersection(WordSplit, myfile, x, y);
 
-		if (valid > 0)
+		if (valid != 0)
 		{
 			continue;
 		}
 		else
 		{
-			InsertInBoard(board, WordSplit, myfile, x, y);
+			InsertInBoard( WordSplit, myfile, x, y);
 			wordcount--;
 		}
 
@@ -296,6 +299,10 @@ int main() //boardbuilder
 
 	DictionaryCreator(l, words);
 
+	int count = words.size();
+
+	cout << "\n" << count << endl;
+
 	cout << "\nSize of the Board: \n"; cin >> sizeofboard;
 
 	while (sizeofboard <= 9 || sizeofboard >= 21)
@@ -303,7 +310,15 @@ int main() //boardbuilder
 		cout << "Size of the Board is not available, try another size: (Between 10 & 20)\n"; cin >> sizeofboard;
 	}
 
-	vector<vector<char>> board(sizeofboard, vector<char>(sizeofboard));
+	for (int i = 0; i < sizeofboard; i++)
+	{
+		vector <char> filler;
+		for (int j = 0; j < sizeofboard; j++)
+		{
+			filler.push_back(0);
+		}
+		board.push_back(filler);
+	}
 
 	cout << "\nDo you want to create the board yourself? (yes or no) \n"; cin >> personalized;
 
@@ -326,11 +341,11 @@ int main() //boardbuilder
 
 	if (personalized == "yes")
 	{
-		ManualBoard(board, myfile, words);
+		ManualBoard( myfile, words);
 	}
 	else if (personalized == "no")
 	{
-		AutomaticBoard(board, myfile, l, words);
+		AutomaticBoard( myfile, l, words);
 	}
 
 	myfile.close();
