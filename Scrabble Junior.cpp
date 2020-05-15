@@ -1,10 +1,31 @@
-﻿#include <iostream>
+//Scrabble Junior Game for console
+
+#include <iostream>
 #include <string>
 #include <vector>
 #include <fstream>
 #include <windows.h>
 #include <conio.h>
 
+//color codes
+#define BLACK 0
+#define BLUE 1
+#define GREEN 2
+#define CYAN 3
+#define RED 4
+#define MAGENTA 5
+#define BROWN 6
+#define LIGHTGRAY 7
+#define DARKGRAY 8
+#define LIGHTBLUE 9
+#define LIGHTGREEN 10
+#define LIGHTCYAN 11
+#define LIGHTRED 12
+#define LIGHTMAGENTA 13
+#define YELLOW 14
+#define WHITE 15
+
+//keyboard keys codes
 #define KEY_UP 72
 #define KEY_DOWN 80
 #define KEY_LEFT 75
@@ -14,12 +35,14 @@
 
 using namespace std;
 
+//converts char to string
 string getString(char x) {
 	string s(1, x);
 
 	return s;
 }
 
+//only for debug purposes, prints the current words in total plot
 void debugMap(vector<string> all) {
 	int sum = 0;
 	string ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ";
@@ -30,6 +53,7 @@ void debugMap(vector<string> all) {
 	cout << sum;
 }
 
+//set cursor coordinates at X and Y
 void gotoxy(int column, int line) {
 	COORD coord;
 	coord.X = column;
@@ -37,6 +61,7 @@ void gotoxy(int column, int line) {
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
+//clears screen console by printing spaces at window width
 void clear(int startLine, int endLine, int width) {
 
 	string blankWidth;
@@ -52,17 +77,7 @@ void clear(int startLine, int endLine, int width) {
 	}
 }
 
-void fontSize(int a, int b) {
-	HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
-
-	PCONSOLE_FONT_INFOEX lpConsoleCurrentFontEx = new CONSOLE_FONT_INFOEX();
-	lpConsoleCurrentFontEx->cbSize = sizeof(CONSOLE_FONT_INFOEX);
-	GetCurrentConsoleFontEx(out, 0, lpConsoleCurrentFontEx);
-	lpConsoleCurrentFontEx->dwFontSize.X = a;
-	lpConsoleCurrentFontEx->dwFontSize.Y = b;
-	SetCurrentConsoleFontEx(out, 0, lpConsoleCurrentFontEx);
-}
-
+//highlights the current selected option in menu
 void colorSelector(int& a, int& b, int& c, int& d, int& e, int& f, int& current, int color3, int color4) {
 
 	if (current == 4) {
@@ -115,6 +130,7 @@ void colorSelector(int& a, int& b, int& c, int& d, int& e, int& f, int& current,
 	}
 }
 
+//translates alphabetic position to numeric one on a whole vector<string>
 void posTranslator(vector<string> pos, vector<int> &yPos, vector<int> &xPos) {
 	string ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	string alpha = "abcdefghijklmnopqrstuvwxyz";
@@ -125,6 +141,7 @@ void posTranslator(vector<string> pos, vector<int> &yPos, vector<int> &xPos) {
 	}
 }
 
+//translates alphabetic position to numeric one on a string
 void soloTranslator(string pos, int& x, int& y) {
 	string ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	string alpha = "abcdefghijklmnopqrstuvwxyz";
@@ -140,7 +157,6 @@ class Board {
 public:
 
 	Board();
-	~Board();
 	int getSize();
 	void readBoard(string lang);
 	void chooseBoard(int a, int b, int c, int d, int e, int f, int color3, int color4, HANDLE hConsole, string str14, string str15, string str16, string str17);
@@ -153,7 +169,6 @@ public:
 	vector<int> y;
 
 private:
-
 	int size;
 	bool noChoice = true;
 	string choice;
@@ -163,13 +178,11 @@ private:
 Board::Board() {
 }
 
-Board::~Board() {
-}
-
 void Board::setChoice(string choice) {
 	this->choice = choice;
 }
 
+//a submenu to choose the type of board
 void Board::chooseBoard(int a, int b, int c, int d, int e, int f, int color3, int color4, HANDLE hConsole, string str14, string str15, string str16, string str17) {
 	int current = 4, car;
 
@@ -221,6 +234,7 @@ int Board::getSize() {
 	return size;
 }
 
+//reads board text file into the game
 void Board::readBoard(string lang) {
 	ifstream in_stream;
 	in_stream.open(choice + "_" + lang + ".txt");  //opens random or custom board from boardbuilder
@@ -252,11 +266,11 @@ void Board::readBoard(string lang) {
 	}
 }
 
+//each player as an individual pool in this game implementation
 class Pool {
 
 public:
 	Pool(vector<string> &all);
-	~Pool();
 	void newPool(vector<string>& all);
 	void delElement(int n);
 	void fillPool(vector<string> &all, vector<int> counter);
@@ -277,9 +291,7 @@ Pool::Pool(vector<string> &all) {
 	}
 }
 
-Pool::~Pool() {
-}
-
+//checkes how many letters were played and retrieves it at counter
 bool Pool::isEmpty(vector<int> &counter) {
 	for (int i = 0; i < letters.size(); i++) {
 		if (letters.at(i) == " ")
@@ -319,9 +331,8 @@ string Pool::getElement(int n) {
 	}
 }
 
+//fills individual pool with (counter) number of random letters at total pool (all)
 void Pool::fillPool(vector<string>& all, vector<int> counter) {
-	//letters.clear();
-
 	int temp = 0;
 
 	for (int i = 0; i < counter.size(); i++) {
@@ -334,6 +345,7 @@ void Pool::fillPool(vector<string>& all, vector<int> counter) {
 	new_end = remove(all.begin(), all.end(), " ");
 }
 
+//erases elements by replacing it with " " to keep number of elements the same
 void Pool::delElement(int n) {
 	switch (n) {
 		case 0:
@@ -360,6 +372,7 @@ void Pool::delElement(int n) {
 	}
 }
 
+//fills pool with completely new random elements from total pool (all)
 void Pool::newPool(vector<string>& all) {
 	vector<string> temp;
 	int tempe = 0;
@@ -382,14 +395,12 @@ void Pool::newPool(vector<string>& all) {
 
 	vector<string>::iterator new_end;
 	new_end = remove(all.begin(), all.end(), " ");
-
 }
 
 class Player {
 
 public:
 	Player();
-	~Player();
 	Player(string name);
 	void setName(string name);
 	bool verifier(string play, vector<vector<bool>> &played, Board B, vector<vector<int>>& intersections, Pool &pool);
@@ -408,9 +419,6 @@ private:
 Player::Player() {
 	name = "player";
 	score = 0;
-}
-
-Player::~Player() {
 }
 
 Player::Player(string name) {
@@ -461,7 +469,7 @@ void Player::scoring(vector<vector<bool>> played, vector<vector<int>> intersecti
 	}
 }
 
-//should give false if is a valid play
+//verifies if a play is valid or not -> should give false if is a valid play
 bool Player::verifier(string play, vector<vector<bool>> &played, Board B, vector<vector<int>> &intersections, Pool &pool) {
 	int x = 0, y = 0;
 	int x2 = 0, y2 = 0;
@@ -522,7 +530,7 @@ bool Player::verifier(string play, vector<vector<bool>> &played, Board B, vector
 				if (played.at(J).at(I))
 					return true;
 			}
-			else if (intersections.size() == 2) {  //unnecessary but 
+			else if (intersections.size() == 2) {  
 				for (int i = 0; i < 2; i++) {
 					J = intersections.at(i).at(0);
 					I = intersections.at(i).at(1);
@@ -531,7 +539,7 @@ bool Player::verifier(string play, vector<vector<bool>> &played, Board B, vector
 					}
 				}
 			}
-			if (intersections.size() == 1) { // no intersections
+			if (intersections.size() == 1) { //no intersections
 				if (I == 0 && !played.at(J).at(I)) {  //check first if is first letter of word
 					played.at(J).at(I) = true;
 					return false;
@@ -612,7 +620,6 @@ class Game {
 
 public:
 	Game();
-	~Game();
 	Game(int players);
 	void startGame(string str18, string str19, string str20,string str21, int color3, HANDLE hConsole, bool &inMenu, Player& player1, Player& player2, Player& player3, Player& player4);
 	void showGame(Board B, HANDLE hConsole,int color1, int color2, Player &p1, Player &p2, Player &p3, Player &p4, string str20, string str21, string str22, string str23, string str24, string lang);
@@ -628,29 +635,30 @@ Game::Game() {
 	players = 2;
 }
 
-Game::~Game() {
-}
-
 Game::Game(int players) {
 	this->players = players;
 }
 
-bool Game::winner(Player p1, Player p2, Player p3, Player p4, Board B, int &winner) {
+bool Game::winner(Player p1, Player p2, Player p3, Player p4, Board B, int& winner) {
 	int sum = p1.getScore() + p2.getScore() + p3.getScore() + p4.getScore();
 	vector<int> scores = { p1.getScore(), p2.getScore() , p3.getScore() , p4.getScore() };
 	int bigger = 0;
 
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 4; i++) {  //sees who has more points
 		if (scores.at(i) > bigger)
 			bigger = scores.at(i);
 	}
 
 	winner = bigger;
 
-	if (sum == B.words.size())
+	if (scores.at(0) == scores.at(1) == scores.at(2) == scores.at(3)) //to check for draws
+		winner = 5;
+
+	if (sum == B.words.size())  //to check if all words are full and end the game
 		return true;
 }
 
+//submenu to choose the players names
 void Game::startGame(string str18, string str19, string str20, string str21, int color3, HANDLE hConsole, bool &inMenu, Player &player1, Player &player2, Player &player3, Player &player4) {
 	vector<string> names;
 	vector<string>::iterator it;
@@ -663,36 +671,38 @@ void Game::startGame(string str18, string str19, string str20, string str21, int
 	cout << "                                                   ";
 	cout << str18 << endl;
 
+	//the next loops serve to check if the name as been already choosen or not
 	do {
 		temp = "";
 		names.push_back(temp);
+		clear(41, 42, 0);
 		gotoxy(0, 41);
 		cout << "                                                   1 -> ";
 		cin >> temp;
 		player1.setName(temp);
 		it = find(names.begin(), names.end(), temp);
 
-	} while (it != names.end());
+	} while (it != names.end() || (temp.size() > 10 && temp != ""));  //also checks if size of name entered is bigger than 10
 
 	names.push_back(temp);
 	temp = "";
 
 	do {
-
+		clear(42, 43, 0);
 		gotoxy(0, 42);
 		cout << "                                                   2 -> ";
 	
 		if (temp != "") {
-			SetConsoleTextAttribute(hConsole, 12);
+			SetConsoleTextAttribute(hConsole, LIGHTRED);
 			cout << str19;
 			temp = "";
-			SetConsoleTextAttribute(hConsole, 15);
+			SetConsoleTextAttribute(hConsole, WHITE);
 		}
 		cin >> temp;
 		player2.setName(temp);
 		it = find(names.begin(), names.end(), temp);
 
-	} while (it != names.end());
+	} while (it != names.end() || (temp.size() > 10 && temp != ""));
 
 	names.push_back(temp);
 	temp = "";
@@ -700,20 +710,21 @@ void Game::startGame(string str18, string str19, string str20, string str21, int
 	if (players == 4) {
 		do {
 			names.push_back(temp);
+			clear(43, 44, 0);
 			gotoxy(0, 43);
 			cout << "                                                   3 -> ";
 
 			if (temp != "") {
-				SetConsoleTextAttribute(hConsole, 12);
+				SetConsoleTextAttribute(hConsole, LIGHTRED);
 				cout << str19;
 				temp = "";
-				SetConsoleTextAttribute(hConsole, 15);
+				SetConsoleTextAttribute(hConsole, WHITE);
 			}
 			cin >> temp;
 			player3.setName(temp);
 			it = find(names.begin(), names.end(), temp);
 
-		} while (it != names.end());
+		} while (it != names.end() || (temp.size() > 10 && temp != ""));
 
 		names.push_back(temp);
 		temp = "";
@@ -721,6 +732,7 @@ void Game::startGame(string str18, string str19, string str20, string str21, int
 		do {
 			names.push_back(temp);
 
+			clear(44, 45, 0);
 			gotoxy(0, 44);
 			cout << "                                                   4 -> ";
 
@@ -734,7 +746,7 @@ void Game::startGame(string str18, string str19, string str20, string str21, int
 			player4.setName(temp);
 			it = find(names.begin(), names.end(), temp);
 
-		} while (it != names.end());
+		} while (it != names.end() || (temp.size() > 10 && temp != ""));
 	}
 
 	inMenu = false;
@@ -742,14 +754,14 @@ void Game::startGame(string str18, string str19, string str20, string str21, int
 	gotoxy(0, 0);
 }
 
+//main game mechanics function -> prints the board, players, score, checks for player input and win or exit
 void Game::showGame(Board B, HANDLE hConsole,int color1, int color2, Player &p1, Player &p2, Player &p3, Player &p4, string str20, string str21, string str22, string str23, string str24, string lang) {
-	//fontSize(40, 20);
 	string ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	string alpha = "abcdefghijklmnopqrstuvwxyz";
-	string play1, play2, playerName;
-	int counter = 0, counter2 = 0;
-	bool verifier = true;
-	int colr = 0;
+	string play1, play2, playerName; 
+	int counter = 0, counter2 = 0;  //to change beetween playes in different plays
+	bool verifier = true;  
+	int colr = 0;  //color of current player 
 	int winnerr = 4;  //just a random number with no meaning (players 0-3)
 	vector<vector<int>> intersections;
 	vector<Pool> allPools;
@@ -769,21 +781,7 @@ void Game::showGame(Board B, HANDLE hConsole,int color1, int color2, Player &p1,
 	posTranslator(B.positions, B.y, B.x);
 	vector<vector<bool>> played;
 
-	if (color1 == 8) {
-
-		SetConsoleTextAttribute(hConsole, color2);
-		gotoxy(0, 1);
-		cout << "	|\\ |\\" << endl;
-		cout << "        \\ \\| |" << endl;
-		cout << "         \\ | |" << endl;
-		cout << "       .--''/" << endl;
-		cout << "      /o     \\" << endl;
-		cout << "      \\      /" << endl;
-		cout << "      {>o<}='" << endl;
-		//rcab i auitt miabmz moo
-	}
-
-	//played checks for played letters to change colours and to verifie plays
+	//played checks for played letters to change colors and to verifie plays
 	for (int i = 0; i < B.words.size(); i++) {
 		for (int k = 0; k < B.words.at(i).size(); k++) {
 			vector<bool> vec;
@@ -828,9 +826,10 @@ void Game::showGame(Board B, HANDLE hConsole,int color1, int color2, Player &p1,
 			cout << ALPHA[i];
 		}
 
+		//agroups all the code to print the whole parts of game
 		auto printBoard = [&]() {
 			//print the board
-			SetConsoleTextAttribute(hConsole, 15);
+			SetConsoleTextAttribute(hConsole, WHITE);
 
 			for (int j = 0; j < B.directions.size(); j++) {
 				for (int i = 0; i < B.words.at(j).size(); i++) {
@@ -852,21 +851,21 @@ void Game::showGame(Board B, HANDLE hConsole,int color1, int color2, Player &p1,
 				}
 			}
 			
-			//print entire pool of letters available DEBUG
-			/*gotoxy(0, 0);
+			/*print entire pool of letters available (DEBUG)
+			gotoxy(0, 0);
 			debugMap(B.all);*/
 
 			//print score, inputs and each ones pool
 			if (players == 2) {
 				gotoxy(30, 5);
-				SetConsoleTextAttribute(hConsole, 9);
+				SetConsoleTextAttribute(hConsole, LIGHTBLUE);
 				cout << p1.getName() << ": " << p1.getScore();
 				gotoxy(30, 7);
 				cout << pool1.getElement(0) << " " << pool1.getElement(1) << " " << pool1.getElement(2) << " " << pool1.getElement(3);
 				gotoxy(30, 8);
 				cout << pool1.getElement(4) << " " << pool1.getElement(5) << " " << pool1.getElement(6);
 				gotoxy(130 + B.getSize(), 5);
-				SetConsoleTextAttribute(hConsole, 12);
+				SetConsoleTextAttribute(hConsole, LIGHTRED);
 				cout << p2.getName() << ": " << p2.getScore();
 				gotoxy(130 + B.getSize(), 7);
 				cout << pool2.getElement(0) << " " << pool2.getElement(1) << " " << pool2.getElement(2) << " " << pool2.getElement(3);
@@ -875,11 +874,11 @@ void Game::showGame(Board B, HANDLE hConsole,int color1, int color2, Player &p1,
 
 				switch (counter) {
 				case 0:
-					colr = 9;
+					colr = LIGHTBLUE;
 					playerName = p1.getName();
 					break;
 				case 1:
-					colr = 12;
+					colr = LIGHTRED;
 					playerName = p2.getName();
 					counter = -1;
 					break;
@@ -887,28 +886,28 @@ void Game::showGame(Board B, HANDLE hConsole,int color1, int color2, Player &p1,
 			}
 			else if (players == 4) {
 				gotoxy(30, 5);
-				SetConsoleTextAttribute(hConsole, 9);
+				SetConsoleTextAttribute(hConsole, LIGHTBLUE);
 				cout << p1.getName() << ": " << p1.getScore();
 				gotoxy(30, 7);
 				cout << pool1.getElement(0) << " " << pool1.getElement(1) << " " << pool1.getElement(2) << " " << pool1.getElement(3);
 				gotoxy(30, 8);
 				cout << pool1.getElement(4) << " " << pool1.getElement(5) << " " << pool1.getElement(6);
 				gotoxy(130 + B.getSize(), 5);
-				SetConsoleTextAttribute(hConsole, 12);
+				SetConsoleTextAttribute(hConsole, LIGHTRED);
 				cout << p2.getName() << ": " << p2.getScore();
 				gotoxy(130 + B.getSize(), 7);
 				cout << pool2.getElement(0) << " " << pool2.getElement(1) << " " << pool2.getElement(2) << " " << pool2.getElement(3);
 				gotoxy(130 + B.getSize(), 8);
 				cout << pool2.getElement(4) << " " << pool2.getElement(5) << " " << pool2.getElement(6);
 				gotoxy(30, 20);
-				SetConsoleTextAttribute(hConsole, 10);
+				SetConsoleTextAttribute(hConsole, LIGHTGREEN);
 				cout << p3.getName() << ": " << p3.getScore();
 				gotoxy(30, 22);
 				cout << pool3.getElement(0) << " " << pool3.getElement(1) << " " << pool3.getElement(2) << " " << pool3.getElement(3);
 				gotoxy(30, 23);
 				cout << pool3.getElement(4) << " " << pool3.getElement(5) << " " << pool3.getElement(6);
 				gotoxy(130 + B.getSize(), 20);
-				SetConsoleTextAttribute(hConsole, 14);
+				SetConsoleTextAttribute(hConsole, YELLOW);
 				cout << p4.getName() << ": " << p4.getScore();
 				gotoxy(130 + B.getSize(), 22);
 				cout << pool3.getElement(0) << " " << pool3.getElement(1) << " " << pool3.getElement(2) << " " << pool3.getElement(3);
@@ -917,19 +916,19 @@ void Game::showGame(Board B, HANDLE hConsole,int color1, int color2, Player &p1,
 
 				switch (counter) {
 				case 0:
-					colr = 9;
+					colr = LIGHTBLUE;
 					playerName = p1.getName();
 					break;
 				case 1:
-					colr = 12;
+					colr = LIGHTRED;
 					playerName = p2.getName();
 					break;
 				case 2:
-					colr = 10;
+					colr = LIGHTGREEN;
 					playerName = p3.getName();
 					break;
 				case 3:
-					colr = 14;
+					colr = YELLOW;
 					playerName = p4.getName();
 					counter = -1;
 					break;
@@ -938,6 +937,7 @@ void Game::showGame(Board B, HANDLE hConsole,int color1, int color2, Player &p1,
 
 			SetConsoleTextAttribute(hConsole, color1);
 
+			//instructions for player to input in game
 			clear(30, 50, 0);
 			gotoxy(60, 27);
 			cout << str20;
@@ -965,7 +965,7 @@ void Game::showGame(Board B, HANDLE hConsole,int color1, int color2, Player &p1,
 			gotoxy(60, 32);
 			SetConsoleTextAttribute(hConsole, colr);
 			cout << playerName;
-			SetConsoleTextAttribute(hConsole, 15);
+			SetConsoleTextAttribute(hConsole, WHITE);
 			cout << "[1] -> ";
 			cin >> play1;
 
@@ -1020,7 +1020,7 @@ void Game::showGame(Board B, HANDLE hConsole,int color1, int color2, Player &p1,
 
 		verifier = true;
 
-		if (win)  // in case of end from play1
+		if (win)  //in case of end from play1
 			verifier = false;
 		else
 			win = winner(p1, p2, p3, p4, B, winnerr);
@@ -1035,7 +1035,7 @@ void Game::showGame(Board B, HANDLE hConsole,int color1, int color2, Player &p1,
 			gotoxy(60, 32);
 			SetConsoleTextAttribute(hConsole, colr);
 			cout << playerName;
-			SetConsoleTextAttribute(hConsole, 15);
+			SetConsoleTextAttribute(hConsole, WHITE);
 			cout << " [2] -> ";
 			cin >> play2;
 
@@ -1114,16 +1114,16 @@ void Game::showGame(Board B, HANDLE hConsole,int color1, int color2, Player &p1,
 		case 3:
 			cout << p4.getName() << " " << str24 << endl;
 			break;
+		case 5:
+			cout << "Draw // Empate // Match nul";  //in case of draw
 	}
 	_getch();
-	
 }
 
 class Menu {
 
 public:
 	Menu();
-	~Menu();
 	Menu(string theme, string lang);
 	void setTheme(string theme);
 	void setLang(string lang);
@@ -1134,7 +1134,6 @@ public:
 	void records(Player p1, Player p2, Player p3, Player p4);
 
 private:
-
 	string theme;
 	string lang;
 	bool inMenu = false;
@@ -1149,10 +1148,6 @@ Menu::Menu() {
 	setLang("en");
 }
 
-Menu::~Menu() {
-}
-
-
 Menu::Menu(string theme, string lang) {
 	this->theme = theme;
 	this->lang = lang;
@@ -1166,36 +1161,47 @@ void Menu::endMenu() {
 	inMenu = false;
 }
 
+//themes selector -> one of the main menu options
 void Menu::setTheme(string theme) {
 	this->theme = theme;
 
 	if (theme == "light") {
-		color1 = 10;
-		color2 = 11;
-		color3 = 15;
-		color4 = 6;
+		color1 = LIGHTGREEN;
+		color2 = LIGHTCYAN;
+		color3 = WHITE;
+		color4 = BROWN;
 	}
 	else if (theme == "dark") {
-		color1 = 8;
-		color2 = 5;
-		color3 = 8;
-		color4 = 15;
+		color1 = DARKGRAY;
+		color2 = MAGENTA;
+		color3 = DARKGRAY;
+		color4 = WHITE;
 	}
 	else if (theme == "blue") {
-		color1 = 9;
-		color2 = 11;
-		color3 = 15;
-		color4 = 3;
+		color1 = LIGHTBLUE;
+		color2 = LIGHTCYAN;
+		color3 = WHITE;
+		color4 = CYAN;
 	}
 	else if (theme == "red") {
-		color1 = 4;
-		color2 = 6;
-		color3 = 15;
-		color4 = 12;
+		color1 = RED;
+		color2 = BROWN;
+		color3 = WHITE;
+		color4 = LIGHTRED;
 	}
 }
 
+//changes language and creates lang text file to be used by Board Builder complementary program
+//en -> English
+//pt -> Portuguese
+//fr -> French
+//es -> Spanish
+//it -> Italian
 void Menu::setLang(string lang) {
+	ofstream language;
+	language.open("lang.txt");
+	language << lang;
+
 	this->lang = lang;
 
 	if (lang == "en") {
@@ -1217,7 +1223,7 @@ void Menu::setLang(string lang) {
 		str16 = "If custom before clicking go to";
 		str17 = "Board Builder to create it!";
 		str18 = "Input players name's:";
-		str19 = "Name already in use! Input another : ";
+		str19 = "Name already in use or too big! Input another: ";
 		str20 = "Input two letters, to the position and separately, put the character to play";
 		str21 = "Example: 'Ab_P'   Note that is case sensitive!";
 		str22 = "There will be two inputs, for the two plays: ";
@@ -1243,10 +1249,10 @@ void Menu::setLang(string lang) {
 		str16 = "Se personalizado antes de clicar";
 		str17 = "criar o tabuleiro no Board Builder!";
 		str18 = "Insira o nome dos jogadores";
-		str19 = u8"Nome já utilizado. Insira outro: ";
-		str20 = "Insira duas letras para a posição e, separadamente, a letra a jogar";
-		str21 = "Exemplo: 'Ab_P'  Note que faz distinção entre maiúsculas e minúsculas!";
-		str22 = "Haverá dois 'inputs' para cada jogada:";
+		str19 = u8"Nome já utilizado ou muito grande. Insira outro: ";
+		str20 = u8"Insira duas letras para a posição e, separadamente, a letra a jogar";
+		str21 = u8"Exemplo: 'Ab_P'  Note que faz distinção entre maiúsculas e minúsculas!";
+		str22 = u8"Haverá dois 'inputs' para cada jogada:";
 		str23 = "Para passar escreva 'passar', 'n' para novas letras e 'e' para terminar";
 		str24 = "GANHOU";
 	}
@@ -1266,15 +1272,15 @@ void Menu::setLang(string lang) {
 		str13 = "pour sortir du jeu";
 		str14 = u8"-->   Plateau de jeu aléatoire  <--";
 		str15 = u8"--> Plateau de jeu personnalisé <--";
-		str16 = "Si personnalisé avant de cliquer";
-		str17 = "créez le tableau dans Board Builder!";
+		str16 = u8"Si personnalisé avant de cliquer";
+		str17 = u8"créez le tableau dans Board Builder!";
 		str18 = "Entrez le nom du joueur";
-		str19 = "Nom déjà utilisé. Entrez un autre: ";
-		str20 = "Entrez deux lettres pour la position et, séparément, la lettre à jouer";
-		str21 = "Exemple: 'Ab_P' Notez qu'il est sensible à la casse!";
-		str22 = "Il y aura deux entrées pour chaque coup : ";
-		str23 = "Pour passer écrire 'passer' et 'n' pour nouvelles lettres et 'e' pour finir";
-		str24 = "A GAGNÉ";
+		str19 = u8"Nom déjà utilisé ou trés grand. Entrez un autre: ";
+		str20 = u8"Entrez deux lettres pour la position et, séparément, la lettre à jouer";
+		str21 = u8"Exemple: 'Ab_P' Notez qu'il est sensible à la casse!";
+		str22 = u8"Il y aura deux entrées pour chaque coup : ";
+		str23 = u8"Pour passer écrire 'passer' et 'n' pour nouvelles lettres et 'e' pour finir";
+		str24 = u8"A GAGNÉ";
 	}
 	else if (lang == "es") {
 		str1 = "--> 2 Jugadores <--";
@@ -1287,7 +1293,7 @@ void Menu::setLang(string lang) {
 		str8 = "Oscuro";
 		str9 = "Azul ";
 		str10 = "Rojo  ";
-		str11 = "En el menú principal";
+		str11 = u8"En el menú principal";
 		str12 = "  presione";
 		str13 = "para salir del juego";
 		str14 = "-->     Tablero de juego al azar   <--";
@@ -1295,10 +1301,10 @@ void Menu::setLang(string lang) {
 		str16 = "Si se personaliza antes de hacer clic";
 		str17 = "crea el tablero en Board Builder!";
 		str18 = "Introduzca el nombre del jugador";
-		str19 = "Nombre ya usado.Insertar otro : ";
+		str19 = "Nombre ya usado ou muy grande.Insertar otro : ";
 		str20 = "Ingrese dos letras para la posición y, por separado, la letra para jugar";
-		str21 = "Ejemplo: 'Ab_P' ¡Tenga en cuenta que distingue entre mayúsculas y minúsculas!";
-		str22 = "Habrá dos entradas para cada movimiento : ";
+		str21 = u8"Ejemplo: 'Ab_P' ¡Tenga en cuenta que distingue entre mayúsculas y minúsculas!";
+		str22 = u8"Habrá dos entradas para cada movimiento : ";
 		str23 = "Para pasar escribir 'pasar', 'n' para nuevas letras y 'e' para terminar";
 		str24 = "GANÓ";
 	}
@@ -1321,7 +1327,7 @@ void Menu::setLang(string lang) {
 		str16 = "Se personalizzato prima di fare clic";
 		str17 = "crea la scheda in Board Builder!";
 		str18 = "Inserisci il nome del giocatore";
-		str19 = "Nome già utilizzato.Inserisci un altro : ";
+		str19 = "Nome già utilizzato o troppo grande. Inserisci un altro : ";
 		str20 = "Immettere due lettere per la posizione e, separatamente, la lettera da riprodurre";
 		str21 = "Esempio: 'Ab_P' Nota che fa distinzione tra maiuscole e minuscole!";
 		str22 = "Ci saranno due ingressi per ogni mossa : ";
@@ -1331,7 +1337,8 @@ void Menu::setLang(string lang) {
 
 }
 
-void Menu::rules() {  // for the sake of simplicity websites with the respective rules are automatic open
+//for the sake of simplicity it opens websites with the respective rules at each language
+void Menu::rules() {  
 	if (lang == "en") {
 		system("start https://www.ultraboardgames.com/scrabble/junior-game-rules.php");
 	}
@@ -1349,7 +1356,8 @@ void Menu::rules() {  // for the sake of simplicity websites with the respective
 	}
 }
 
-void Menu::records(Player p1, Player p2, Player p3, Player p4) {  // More like a log register
+//more like a log register (deprecated)
+void Menu::records(Player p1, Player p2, Player p3, Player p4) {  
 	string st;
 	ifstream in;
 	in.open("records.txt");  
@@ -1380,8 +1388,10 @@ void Menu::records(Player p1, Player p2, Player p3, Player p4) {  // More like a
 	}
 }
 
+//shows main menu with options controlled by keyboard arrows 
 void Menu::show() {
 	
+	//increases console window size
 	HWND hwnd = GetConsoleWindow();
 	if (hwnd != NULL)
 		MoveWindow(hwnd, 0, 0, 1500, 1500, TRUE);
@@ -1390,9 +1400,9 @@ void Menu::show() {
 
 	SetConsoleTitle(TEXT("Scrabble Junior"));
 
-	int c = 0;
+	int c = 0;  //to get input from user
 	int A = 0, B = 0, C = 0, D = 0, E = 0, F = 0;
-	int current = 4;
+	int current = 4;  //used to select each menu option
 
 	while (inMenu) {
 		gotoxy(0, 0);
@@ -1442,7 +1452,7 @@ void Menu::show() {
 		SetConsoleTextAttribute(hConsole, color4);
 		cout << u8" ▄▄▄▄" << endl;
 		cout << u8" █";
-		SetConsoleTextAttribute(hConsole, 15);
+		SetConsoleTextAttribute(hConsole, WHITE);
 		cout << lang;
 		SetConsoleTextAttribute(hConsole, color4);
 		cout << u8"█" << endl;
@@ -1504,7 +1514,7 @@ void Menu::show() {
 			Player player1, player2, player3, player4;
 
 			if (current == 4) {
-				Board Bo;
+				Board Bo; 
 				Bo.chooseBoard(A, B, C, D, E, F, color3, color4, hConsole, str14, str15, str16, str17);
 				Game G(2);
 				G.startGame(str18, str19, str20, str21, color3, hConsole, inMenu, player1, player2, player3, player4);
@@ -1528,6 +1538,7 @@ void Menu::show() {
 				while (c != ENTER) {
 
 					colorSelector(A, B, C, D, E, F, current, color3, color4);
+
 					clear(34, 41, 0); 
 
 					gotoxy(0, 34);
@@ -1582,6 +1593,7 @@ void Menu::show() {
 				while (c != ENTER) {
 					
 					colorSelector(A, B, C, D, E, F, current, color3, color4);
+
 					clear(34, 41, 0);
 
 					gotoxy(0, 34);
@@ -1630,7 +1642,7 @@ void Menu::show() {
 }
 
 int main() {
-	SetConsoleOutputCP(CP_UTF8);
+	SetConsoleOutputCP(CP_UTF8);  //to print UTF8 characters like accents
 	bool inGame = true;
 
 	Menu m;
@@ -1645,7 +1657,7 @@ int main() {
 		clear(0, 50, 0);
 
 		gotoxy(82, 18);
-		SetConsoleTextAttribute(h, 12);
+		SetConsoleTextAttribute(h, LIGHTRED);
 		cout << "Exit / Sair / Sortir / Salir / Uscire" << endl;
 		gotoxy(95, 20);
 		cout << u8"  ┏───┓";
@@ -1653,9 +1665,9 @@ int main() {
 		cout << u8"  │ESC│";
 		gotoxy(95, 22);
 		cout << u8"  ┗───┛";
-		SetConsoleTextAttribute(h, 15);
+		SetConsoleTextAttribute(h, WHITE);
 
-		if (_getch() == ESC)
+		if (_getch() == ESC)  //to exit game menu
 			inGame = false;
 	}
 	return 0;
