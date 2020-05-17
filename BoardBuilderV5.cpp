@@ -67,15 +67,15 @@ bool intersection(vector<char> WordSplit, int x, int y, vector<vector<char>> boa
 	{
 		if (wordlength + 1 + y < sizeofboard)
 		{
-			if (board[x][ wordlength + y + 1] != 0)
+			if (board[x][wordlength + y + 1] != 0)
 			{
 				return false;
 				n++;
 			}
 		}
-		if (y > 0 && board[x][y-1] != 0)
+		if (y > 0)
 		{
-			if (board[x - 1][y] != 0)
+			if (board[x][y-1] != 0)
 			{
 				return false;
 				n++;
@@ -94,7 +94,7 @@ bool intersection(vector<char> WordSplit, int x, int y, vector<vector<char>> boa
 				n++;
 			}
 		}
-		if (x > 0 && board[x - 1][y] != 0)
+		if (x > 0)
 		{
 			if (board[x - 1][y] != 0)
 			{
@@ -106,11 +106,12 @@ bool intersection(vector<char> WordSplit, int x, int y, vector<vector<char>> boa
 
 	if (n == 0) 
 	{
-		for (int i = 0; i < wordlength; i++)
+		for (int i = 0; i < wordlength; i++) //Checks for intersections and if they occur and are not valid, break.
 		{
 			if (dir == "H")
 			{
 				h = board[x][y + i];
+
 				if (h != 0)
 				{
 					if (h != WordSplit[i])
@@ -136,6 +137,7 @@ bool intersection(vector<char> WordSplit, int x, int y, vector<vector<char>> boa
 			}
 		}
 	}
+
 	if (n == 0)
 	{
 		return true;
@@ -350,15 +352,15 @@ void automaticBoard(ofstream& myfile, string, vector<string> words, vector<vecto
 		//removes need to check if word fits (selects random number in range)
 		if (dir == "H") 
 		{
-			int random_x_axis = rand() % x_axis.size();
-			x = x_axis[random_x_axis];
-			y = rand() % c;
-		}
-		else 
-		{
 			x = rand() % c;
 			int random_y_axis = rand() % y_axis.size();
 			y = y_axis[random_y_axis];
+		}
+		else 
+		{
+			int random_x_axis = rand() % x_axis.size();
+			x = x_axis[random_x_axis];
+			y = rand() % c;
 		}
 
 		RandX = ALPHA[x];
@@ -378,39 +380,56 @@ void automaticBoard(ofstream& myfile, string, vector<string> words, vector<vecto
 		else if (intersection(WordSplit, x, y, board, pos, dir, wordlength) == true && word_count > 1)
 		{
 			insertInBoard(WordSplit, myfile, x, y, board, Word, pos, dir, wordlength);
-			if (dir == "H")
+			int T = 0; 
+			if (dir == "V")
 			{
-				std::vector<int>::iterator itr = std::find(x_axis.begin(), x_axis.end(), x);
-				x_axis.erase(x_axis.begin() + distance(x_axis.begin(), itr));
-				if (x != x_axis.size() - 1) 
+				if (x < sizeofboard - 1 && x > 0) 
 				{
-					std::vector<int>::iterator itr = std::find(x_axis.begin(), x_axis.end(), x);
-					x_axis.erase(x_axis.begin() + distance(x_axis.begin() + 1, itr));
+					vector<int>::iterator itr = find(x_axis.begin(), x_axis.end(), x);
+					x_axis.erase(x_axis.begin() + distance(x_axis.begin(), itr) - 1, x_axis.begin() + distance(x_axis.begin(), itr) + 2);
+					T++;
 				}
-				else if (x != 0)
+				if (x > 0 && T == 0)
 				{
-					std::vector<int>::iterator itr = std::find(x_axis.begin(), x_axis.end(), x);
+					vector<int>::iterator itr = find(x_axis.begin(), x_axis.end(), x);
 					x_axis.erase(x_axis.begin() - 1 + distance(x_axis.begin(), itr));
+				}
+				if (x + 1 < sizeofboard && T == 0)
+				{
+					vector<int>::iterator itr = find(x_axis.begin(), x_axis.end(), x);
+					x_axis.erase(x_axis.begin() + 1 + distance(x_axis.begin(), itr));
+				}
+				if (T == 0)
+				{
+					vector<int>::iterator itr = find(x_axis.begin(), x_axis.end(), x);
+					x_axis.erase(x_axis.begin() + distance(x_axis.begin(), itr));
 				}
 			}
 			else
 			{
-				std::vector<int>::iterator itr = std::find(y_axis.begin(), y_axis.end(), y);
-				y_axis.erase(y_axis.begin() + distance(y_axis.begin(), itr));
-				if (y != y_axis.size() - 1)
+				if (y < sizeofboard - 1 && y > 0)
 				{
-					std::vector<int>::iterator itr = std::find(y_axis.begin(), y_axis.end(), y);
+					vector<int>::iterator itr = find(y_axis.begin(), y_axis.end(), y);
+					y_axis.erase(y_axis.begin() - 1 + distance(y_axis.begin(), itr), y_axis.begin() + 2 + distance(y_axis.begin(), itr));
+					T++;
+				}
+				if (y > 0 && T == 0)
+				{
+					vector<int>::iterator itr = find(y_axis.begin(), y_axis.end(), y);
+					y_axis.erase(y_axis.begin() - 1 + distance(y_axis.begin(), itr));
+				}
+				if (y + 1 < sizeofboard && T == 0)
+				{
+					vector<int>::iterator itr = find(y_axis.begin(), y_axis.end(), y);
 					y_axis.erase(y_axis.begin() + 1 + distance(y_axis.begin(), itr));
 				}
-				else if (y != 0)
+				if (T == 0)
 				{
-					std::vector<int>::iterator itr = std::find(y_axis.begin(), y_axis.end(), y);
-					y_axis.erase(y_axis.begin() - 1 + distance(y_axis.begin(), itr));
+					vector<int>::iterator itr = find(y_axis.begin(), y_axis.end(), y);
+					y_axis.erase(y_axis.begin() + distance(y_axis.begin(), itr));
 				}
 			}
 
-
-			
 			int RN = rand() % words.size();
 			Word2 = words[RN];
 			int W2 = 0;
